@@ -1,0 +1,192 @@
+//Header file used in order to use the keywords
+#include <SPI.h>
+#include <WiFi101.h>
+#include <BlynkSimpleMKR1000.h>
+#include "Adafruit_seesaw.h"
+#include "Adafruit_BME680.h"
+#include <Adafruit_BMP280.h>
+#include "Adafruit_TSL2591.h"
+#include <Adafruit_Sensor.h>
+//Defining SCK,MISO,MOSI pins for BMP280
+#define BMP_MOSI (8)
+#define BMP_SCK (9)
+#define BMP_MISO (10)
+//Defining SCK,MISO,MOSI pins for BME680
+#define BME_MOSI (8)
+#define BME_SCK (9)
+#define BME_MISO (10)
+//Defining CS pins
+#define BMP_CSB1 (4)
+#define BMP_CSB2 (5)
+#define BME_CS (7)
+int seeed_led = 6;
+int pir_pin = 3;
+int pir_state = LOW;
+int val = 0;
+int led = 1;
+int avg = 0;
+char auth[] = "MQ5H4NlfE0yeJFyOnMyPZkx3hcXWhoNV";
+char ssid[] = "IoT";
+char pass[] = "Test";
+//pushingbox API server
+const char box[] = "api.pushingbox.com";
+//device ID on Pushingbox
+const String device_id = "vEB2AC5469CE77C9"; for our Scenario
+//Instantiates sensors
+Adafruit_BMP280 bmp(BMP_CSB1, BMP_MOSI, BMP_MISO, BMP_SCK);
+Adafruit_BMP280 bmp1(BMP_CSB2, BMP_MOSI, BMP_MISO, BMP_SCK);
+Adafruit_BME680 bme_spi(BME_CS, BME_MOSI, BME_MISO, BME_SCK);
+Adafruit_seesaw soil;
+Adafruit_TSL2591 light = Adafruit_TSL2591(2591);
+WidgetLCD pir_lcd(V7);
+WidgetLCD hall_lcd(V8);
+BlynkTimer timer;
+void setup()
+{
+// Serial.begin(9600);
+ Blynk.begin(auth, ssid, pass);
+ !soil.begin(0x36);
+ !bme_spi.begin();
+ pinMode(seeed_led, OUTPUT);
+ pinMode(pir_pin, INPUT);
+ pinMode(2, INPUT_PULLUP);
+ pinMode(led, OUTPUT);
+ !bmp.begin();
+ !bmp1.begin();
+ !light.begin();
+
+timer.setInterval(2000L, bme_sensor);
+ timer.setInterval(3000L, soil_sensor);
+ timer.setInterval(900000L, google);
+ timer.setInterval(1000L, pir_sensor);
+ timer.setInterval(3000L, hall_sensor);
+ timer.setInterval(1000L, wifistatus);
+}
+//Performs a full reading of all 4 sensors in the BME680.If reading was
+successful then print results. else print failed.
+void bme_sensor(){
+ if (! bme_spi.performReading()) {
+ Serial.println("Failed to read :(");
+ return;
+ }
+ Blynk.setProperty(V1, "label", "Temperature");
+ Blynk.virtualWrite(V1, bme_spi.temperature, "°C");
+ Blynk.setProperty(V2, "label", "Humidity");
+ Blynk.virtualWrite(V2, bme_spi.humidity, "%");
+ int pressure = bme_spi.pressure / 100.0 ;
+ Blynk.setProperty(V3, "label", "Pressure");
+ Blynk.virtualWrite(V3, pressure, "hPa");
+ int gas = bme_spi.gas_resistance / 1000.0 ;
+ Blynk.setProperty(V4, "label", "VOC Gas");
+ Blynk.virtualWrite(V4, gas, " KOhms");
+ Blynk.setProperty(V30, "label", "Room 1:Temperature");
+ Blynk.virtualWrite(V30, bmp.readTemperature(), "°C");
+ Blynk.setProperty(V31, "label", "Room 1:Pressure");
+ int r1_pressure = (bmp.readPressure()/ 100);
+ Blynk.virtualWrite(V31, r1_pressure, " hPa");
+ Blynk.setProperty(V32, "label", "Room 2:Temperature");
+ Blynk.virtualWrite(V32, bmp1.readTemperature(), "°C");
+ Blynk.setProperty(V33, "label", "Room 2:Pressure");
+ int r2_pressure = (bmp1.readPressure()/ 100);
+ Blynk.virtualWrite(V33, r2_pressure, " hPa");
+}
+void soil_sensor(){
+ float temperature = soil.getTemp(); //Performs reading of
+temperture
+ uint16_t capacitive = soil.touchRead(0); //Performs reading of
+moisture sensor
+ uint32_t luminosity = light.getFullLuminosity();
+ uint16_t ir, full;
+ ir = luminosity >> 16;
+ full = luminosity & 0xFFFF;
+
+for (int i=0; i < 20; i++) {
+avg = avg + capacitive;
+}
+avg = avg/20;
+ Blynk.setProperty(V5, "label", "Soil Temperature");
+ Blynk.virtualWrite(V5, temperature, "°C");
+ Blynk.setProperty(V6, "label", "Moisture");
+ Blynk.virtualWrite(V6, avg);
+ Blynk.setProperty(V35, "label", "Luminosity");
+ Blynk.virtualWrite(V35, (light.calculateLux(full, ir)));
+
+ Blynk.setProperty(V36, "label", "Brightness");
+ if(full > 90) {
+ Blynk.virtualWrite(V36, "High");
+ }
+ else {
+ Blynk.virtualWrite(V36, "Low");
+ }
+}
+//Performs reading of temperature
+void google() {
+ float soil_temp = soil.getTemp();
+ uint16_t soil_cap = soil.touchRead(0);
+//Instantiate WiFi object, can scope from here or Globally
+WiFiClient google;
+ if (google.connect(box, 80))
+ {
+ google.print("GET /pushingbox?devid=" + device_id
+ + "&soil_temp=" + (String) soil_temp
+ + "&soil_cap=" + (String) soil_cap
+ );
+
+ google.println(" HTTP/1.1");
+ google.print("Host: ");
+ google.println(box);
+ google.println("User-Agent: MKR1000/1.0");
+ google.println();
+ google.stop();
+ }
+}
+void pir_sensor(){
+ val = digitalRead(pir_pin);
+ if (val == HIGH) {
+ digitalWrite(seeed_led, HIGH);
+ digitalWrite(led, HIGH);
+ if (pir_state == LOW) {
+ pir_lcd.print(0, 0, "Room: ");
+ pir_lcd.print(0, 1, "Motion Detected! ");
+ pir_state = HIGH;
+ Blynk.notify("Motion Detected in Room!");
+ }
+ }
+ else {
+ digitalWrite(seeed_led, LOW);
+ digitalWrite(led, LOW);
+ if (pir_state == HIGH){
+ pir_lcd.clear();
+ pir_lcd.print(0, 0, "Room: ");
+ pir_lcd.print(0, 1, "No Motion ");
+ pir_state = LOW;
+ }
+ }
+}
+
+void hall_sensor(){
+int hall_effect = digitalRead(2);
+
+ if (hall_effect == HIGH) {
+ hall_lcd.print(0, 0, "Door: ");
+ hall_lcd.print(0, 1, "Opened!");
+ }
+ else {
+ hall_lcd.clear();
+ hall_lcd.print(0, 0, "Door: ");
+ hall_lcd.print(0, 1, "Closed!");
+}
+}
+void wifistatus(){
+ long s_strength = WiFi.RSSI();
+ Blynk.setProperty(V20, "label", "Wi-Fi:");
+ Blynk.virtualWrite(V20, ssid);
+Blynk.setProperty(V21, "label", "RSSI:");
+ Blynk.virtualWrite(V21, s_strength, "dBm");
+}
+void loop()
+{
+ Blynk.run();
+ timer.run();
+}
+
