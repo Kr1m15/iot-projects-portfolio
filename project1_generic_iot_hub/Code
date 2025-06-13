@@ -25,13 +25,13 @@ int pir_state = LOW;
 int val = 0;
 int led = 1;
 int avg = 0;
-char auth[] = "MQ5H4NlfE0yeJFyOnMyPZkx3hcXWhoNV";
-char ssid[] = "IoT";
-char pass[] = "Test";
+char auth[] = "xxx";
+char ssid[] = "xxx";
+char pass[] = "xxx";
 //pushingbox API server
 const char box[] = "api.pushingbox.com";
 //device ID on Pushingbox
-const String device_id = "vEB2AC5469CE77C9"; for our Scenario
+const String device_id = "xxx"; for our Scenario
 //Instantiates sensors
 Adafruit_BMP280 bmp(BMP_CSB1, BMP_MOSI, BMP_MISO, BMP_SCK);
 Adafruit_BMP280 bmp1(BMP_CSB2, BMP_MOSI, BMP_MISO, BMP_SCK);
