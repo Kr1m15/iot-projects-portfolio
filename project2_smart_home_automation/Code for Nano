@@ -1,0 +1,188 @@
+#include <SPI.h>
+#include <nRF24L01.h>
+#include <RF24.h>
+RF24 radio(7, 8); // CE, CSN
+#include <SoftwareSerial.h>
+
+SoftwareSerial TV_Serial(4, 3);
+const byte address[6] = "00001";
+//int dataReceived = radio.read(&dataReceived, sizeof(dataReceived));
+int dataReceived;
+
+String OFF = ("ka 01 00");
+String ON = ("ka 01 01");
+String NORMAL_SCREEN = ("kc 01 01");
+String WIDE_SCREEN = ("kc 01 02");
+String ZOOM = ("kc 01 04");
+String ZOOM_2 = ("kc 01 05");
+String JUST_SCAN = ("kc 01 09");
+String VOLUME_MUTE_ON = ("ke 01 00");
+String VOLUME_MUTE_OFF = ("ke 01 01");
+String VOLUME_UP = ("mc 01 02");
+String VOLUME_DOWN = ("mc 01 03");
+String HDMI_1 = ("xb 01 90");
+String HDMI_2 = ("xb 01 91");
+String Component1 = ("xb 01 40");
+String RGB = ("xb 01 60");
+String ARROW_UP = ("mc 01 40");
+String ARROW_DOWN = ("mc 01 41");
+String ARROW_RIGHT = ("mc 01 06");
+String ARROW_LEFT = ("mc 01 07");
+String ENTER = ("mc 01 44");
+String MENU = ("mc 01 43");
+String EXIT = ("mc 01 5B");
+String BACK = ("mc 01 28");
+String QMENU = ("mc 01 45");
+String IR_POWER = ("mc 01 08");
+
+void setup() {
+       TV_Serial.begin(9600);
+  Serial.begin(9600);
+  radio.begin();
+  radio.openReadingPipe(0, address);
+  radio.setPALevel(RF24_PA_MIN);
+  radio.startListening();
+}
+void loop() {
+
+  if (radio.available()) {
+
+    while (radio.available())
+    {
+      radio.read( &dataReceived, sizeof(dataReceived) );
+    }
+
+    switch (dataReceived) {
+
+    case 100:
+    Serial.print("print 100\n");
+        TV_Serial.println (OFF);
+      break;
+
+      case 101:
+    Serial.print("print 101\n");
+    TV_Serial.println (ON);
+      break;   
+
+      case 102:
+    Serial.print("print 102\n");
+    TV_Serial.println (NORMAL_SCREEN);
+      break;
+
+      case 103:
+    Serial.print("print 103\n");
+    TV_Serial.println (WIDE_SCREEN);
+      break;
+
+      case 104:
+    Serial.print("print 104\n");
+    TV_Serial.println (ZOOM);
+      break;  
+
+      case 105:
+    Serial.print("print 105\n");
+    TV_Serial.println (ZOOM_2);
+      break;           
+
+      case 106:
+    Serial.print("print 106\n");
+    TV_Serial.println (JUST_SCAN);
+      break;  
+
+      case 107:
+    Serial.print("print 107\n");
+    TV_Serial.println (VOLUME_MUTE_ON);
+      break;           
+
+      case 108:
+    Serial.print("print 108\n");
+    TV_Serial.println (VOLUME_MUTE_OFF);
+      break;
+
+      case 109:
+    Serial.print("print 109\n");
+    TV_Serial.println (VOLUME_UP);
+      break;           
+
+      case 110:
+    Serial.print("print 110\n");
+    TV_Serial.println (VOLUME_DOWN);
+      break;      
+
+      case 111:
+    Serial.print("print 111\n");
+    TV_Serial.println (HDMI_1);
+      break;  
+
+      case 112:
+    Serial.print("print 112\n");
+    TV_Serial.println (HDMI_2);
+      break;           
+
+      case 113:
+    Serial.print("print 113\n");
+    TV_Serial.println (Component1);
+      break;
+
+      case 114:
+    Serial.print("print 114\n");
+    TV_Serial.println (RGB);
+      break;           
+
+      case 115:
+    Serial.print("print 115\n");
+    TV_Serial.println (ARROW_UP);
+      break;  
+
+      case 116:
+    Serial.print("print 116\n");
+    TV_Serial.println (ARROW_DOWN);
+      break;           
+
+      case 117:
+    Serial.print("print 117\n");
+    TV_Serial.println (ARROW_RIGHT);
+      break;
+
+      case 118:
+    Serial.print("print 118\n");
+    TV_Serial.println (ARROW_LEFT);
+      break;           
+
+      case 119:
+    Serial.print("print 119\n");
+    TV_Serial.println (ENTER);
+      break;       
+
+      case 120:
+    Serial.print("print 120\n");
+    TV_Serial.println (MENU);
+      break;           
+
+      case 121:
+    Serial.print("print 121\n");
+    TV_Serial.println (EXIT);
+      break;   
+
+      case 122:
+    Serial.print("print 122\n");
+    TV_Serial.println (BACK);
+      break;       
+
+      case 123:
+    Serial.print("print 123\n");
+    TV_Serial.println (QMENU);
+      break;           
+
+      case 124:
+    Serial.print("print 124\n");
+    TV_Serial.println (IR_POWER);
+      break;               
+      
+     default:
+    // statements
+    break; 
+
+  }
+  }
+}
