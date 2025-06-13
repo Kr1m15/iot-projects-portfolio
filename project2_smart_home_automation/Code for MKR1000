@@ -27,9 +27,9 @@ int oldButtonState = LOW;
 Adafruit_BME680 bme(BME_CS, BME_MOSI, BME_MISO,  BME_SCK);
 
 //MQTT stuff
-#define mqtt_server "192.168.0.91"  // Home Assistant IP address
-#define mqtt_user "Krishan"   // Home assistant user name
-#define mqtt_password "Kr15hanm"  // Home Assistant password
+#define mqtt_server "xxx"  // Home Assistant IP address
+#define mqtt_user "xxx"   // Home assistant user name
+#define mqtt_password "xxx"  // Home Assistant password
 #define DEVICE_ID "MKR1000_1"    // give a unique name to your device
 String temperature_topic;
 String pressure_topic;
