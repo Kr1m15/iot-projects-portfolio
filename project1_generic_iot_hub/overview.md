@@ -28,6 +28,7 @@ Developed a smart, modular IoT hub using the Arduino MKR1000 to monitor the envi
 - Moisture smoothing with code-level averaging
 - Code modularization with BlynkTimer
 - Google Sheets integration via PushingBox
+- ![Image](https://github.com/user-attachments/assets/0ec4e22a-7e4e-4d92-8052-6ee8e726310d)
 
 ## Skills Demonstrated
 - Embedded C/C++ with Arduino IDE
