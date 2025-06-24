@@ -20,6 +20,7 @@ Developed a smart, modular IoT hub using the Arduino MKR1000 to monitor the envi
 - Hall Effect Sensor
 - TSL2591 Light Sensor
 - LEDs
+- ![Image](https://github.com/user-attachments/assets/2f1ce9ad-bb50-4d10-ae65-b0b3ff99a606)
 
 ## Refinement & Validation
 - Cross-compared BME680 and BMP280 for sensor accuracy
