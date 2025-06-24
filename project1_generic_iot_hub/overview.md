@@ -3,7 +3,7 @@
 ## Overview
 Developed a smart, modular IoT hub using the Arduino MKR1000 to monitor the environment. The system collected sensor readings and transmitted them via Wi-Fi to a mobile dashboard (Blynk app) and cloud database (Google Sheets).
 ![Image](https://github.com/user-attachments/assets/7ffb6b0e-17c6-418d-984a-10328d12e822)
-<img src="[https://github.com/favicon.ico](https://github.com/user-attachments/assets/7ffb6b0e-17c6-418d-984a-10328d12e822)" width="48">
+
 
 ## Core Features
 - Wireless multi-sensor hub
